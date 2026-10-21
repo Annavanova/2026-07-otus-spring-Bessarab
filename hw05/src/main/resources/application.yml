@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:maindb;DB_CLOSE_DELAY=-1
+  sql:
+    init:
+      mode: always
+      data-locations: data.sql
+      schema-locations: schema.sql
+
+shell:
+  interactive:
+    enabled: true
+
+logging:
+  level:
+    org.springframework.jdbc.core: DEBUG
