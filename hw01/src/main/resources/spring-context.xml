@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="appProperties" class="ru.otus.hw.config.AppProperties">
+        <constructor-arg name="testFileName" value="questions.csv"/>
+    </bean>
+
+    <bean id="ioService" class="ru.otus.hw.service.StreamsIOService">
+        <constructor-arg name="printStream" value="#{T(System).out}"/>
+        <constructor-arg name="inputStream" value="#{T(System).in}"/>
+    </bean>
+
+    <bean id="questionDao" class="ru.otus.hw.dao.CsvQuestionDao">
+        <constructor-arg name="fileNameProvider" ref="appProperties"/>
+    </bean>
+
+    <bean id="testService" class="ru.otus.hw.service.TestServiceImpl">
+        <constructor-arg name="ioService" ref="ioService"/>
+        <constructor-arg name="questionDao" ref="questionDao"/>
+    </bean>
+
+    <bean id="testRunnerService" class="ru.otus.hw.service.TestRunnerServiceImpl">
+        <constructor-arg name="testService" ref="testService"/>
+    </bean>
+</beans>
