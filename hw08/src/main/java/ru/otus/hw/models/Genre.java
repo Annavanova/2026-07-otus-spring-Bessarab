@@ -2,9 +2,9 @@ package ru.otus.hw.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "genres")
+@Document(collection = "genres")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,9 +12,12 @@ import lombok.*;
 public class Genre {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column(name = "name", nullable = false)
     private String name;
+
+    @Override
+    public String toString() {
+        return "Genre{id='%s', name='%s'}".formatted(id, name);
+    }
 }

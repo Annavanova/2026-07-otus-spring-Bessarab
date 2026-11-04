@@ -2,18 +2,21 @@ package ru.otus.hw.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "authors")
+@Document(collection = "authors")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column(name = "full_name", nullable = false)
     private String fullName;
+
+    @Override
+    public String toString() {
+        return "Author{id='%s', fullName='%s'}".formatted(id, fullName);
+    }
 }

@@ -2,11 +2,12 @@ package ru.otus.hw.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Entity
-@Table(name = "books")
+@Document(collection = "books")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,28 +15,18 @@ import java.util.List;
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
+    @DBRef(lazy = true)
     private Author author;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "books_genres",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    @DBRef(lazy = true)
     private List<Genre> genres;
-
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
 
     @Override
     public String toString() {
-        return "Book{id=%d, title='%s'}".formatted(id, title);
+        return "Book{id='%s', title='%s'}".formatted(id, title);
     }
 }

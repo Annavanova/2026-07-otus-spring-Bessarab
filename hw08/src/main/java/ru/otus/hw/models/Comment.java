@@ -13,27 +13,25 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "comments")
+@Document(collection = "comments")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column(name = "text", nullable = false)
     private String text;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", nullable = false)
+    @DBRef(lazy = true)
     private Book book;
 
     @Override
     public String toString() {
-        return "Comment{id=%d, text='%s'}".formatted(id, text);
+        return "Comment{id='%s', text='%s'}".formatted(id, text);
     }
 }

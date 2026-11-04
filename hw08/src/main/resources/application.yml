@@ -1,23 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:maindb;DB_CLOSE_DELAY=-1
+  data:
+  mongodb:
+    database: testdb
+    auto-index-creation: true
   sql:
     init:
       mode: always
       data-locations: data.sql
       schema-locations: schema.sql
-jpa:
-  hibernate:
-    ddl-auto: none
-  show-sql: true
-  properties:
-    hibernate:
-      format_sql: true
+  shell:
+    interactive:
+      enabled: true
 
-shell:
-  interactive:
-    enabled: true
-
-logging:
-  level:
-    org.springframework.jdbc.core: DEBUG

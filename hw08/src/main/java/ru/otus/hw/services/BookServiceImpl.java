@@ -8,6 +8,7 @@ import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
+import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
 import java.util.List;
@@ -23,51 +24,53 @@ public class BookServiceImpl implements BookService {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final BookRepository bookRepository;
+    private final CommentRepository commentRepository;
 
     @Override
-    public Optional<Book> findById(long id) {
+    public Optional<Book> findById(String id) {
         return bookRepository.findById(id);
     }
 
     @Override
     public List<Book> findAll() {
-        return bookRepository.findAllWithAuthorAndGenres();
+        return bookRepository.findAll();
     }
 
     @Override
     @Transactional
-    public Book insert(String title, long authorId, Set<Long> genresIds) {
-        return save(0, title, authorId, genresIds);
+    public Book insert(String title, String authorId, Set<String> genresIds) {
+        return save(null, title, authorId, genresIds);
     }
 
     @Override
     @Transactional
-    public Book update(long id, String title, long authorId, Set<Long> genresIds) {
+    public Book update(String id, String title, String authorId, Set<String> genresIds) {
         return save(id, title, authorId, genresIds);
     }
 
     @Override
     @Transactional
-    public void deleteById(long id) {
+    public void deleteById(String id) {
+        commentRepository.deleteAllByBookId(id);
         bookRepository.deleteById(id);
     }
 
-    private Book save(long id, String title, long authorId, Set<Long> genresIds) {
+    private Book save(String id, String title, String authorId, Set<String> genresIds) {
         if (isEmpty(genresIds)) {
             throw new IllegalArgumentException("Genres ids must not be null");
         }
 
         var author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Author with id %d not found".formatted(authorId)));
+                        "Author with id %s not found".formatted(authorId)));
 
-        var genres = (List<Genre>) genreRepository.findAllById(genresIds);
+        var genres = genreRepository.findAllByIdIn(List.copyOf(genresIds));
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new EntityNotFoundException(
                     "One or all genres with ids %s not found".formatted(genresIds));
         }
 
-        var book = new Book(id, title, author, genres, null);
+        var book = new Book(id, title, author, genres);
         return bookRepository.save(book);
     }
 }
