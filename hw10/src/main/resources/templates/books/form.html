@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book form</title>
+</head>
+<body>
+
+<h1>Book</h1>
+<form id="bookForm">
+    <input type="hidden" id="bookId"/>
+    <label>Title: <input type="text" id="title" required/></label><br/>
+    <label>Author:
+        <select id="authorId" required>
+            <option value="">-- choose --</option>
+        </select>
+    </label><br/>
+    <label>Genres:
+        <select id="genreIds" multiple required></select>
+    </label><br/>
+    <button type="submit">Save</button>
+    <a href="/books">Cancel</a>
+</form>
+
+<script>
+    const bookId = window.location.pathname.split('/')[2]; // /books/{id}/edit
+    const isEdit = bookId && bookId !== 'new';
+
+    async function loadAuthors() {
+        const res = await fetch('/api/authors');
+        const authors = await res.json();
+        const select = document.getElementById('authorId');
+        authors.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.fullName;
+            select.appendChild(opt);
+        });
+    }
+
+    async function loadGenres() {
+        const res = await fetch('/api/genres');
+        const genres = await res.json();
+        const select = document.getElementById('genreIds');
+        genres.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = g.name;
+            select.appendChild(opt);
+        });
+    }
+
+    async function loadBook() {
+        const res = await fetch(`/api/books/${bookId}`);
+        const book = await res.json();
+        document.getElementById('bookId').value = book.id;
+        document.getElementById('title').value = book.title;
+        document.getElementById('authorId').value = book.author.id;
+        const selectedGenres = book.genres.map(g => g.id);
+        Array.from(document.getElementById('genreIds').options).forEach(opt => {
+            opt.selected = selectedGenres.includes(opt.value);
+        });
+    }
+
+    document.getElementById('bookForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dto = {
+            title: document.getElementById('title').value,
+            authorId: document.getElementById('authorId').value,
+            genreIds: Array.from(document.getElementById('genreIds').selectedOptions).map(o => o.value)
+        };
+        const url = isEdit ? `/api/books/${bookId}` : '/api/books';
+        const method = isEdit ? 'PUT' : 'POST';
+        await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+        });
+        window.location.href = '/books';
+    });
+
+    Promise.all([loadAuthors(), loadGenres()]).then(() => {
+        if (isEdit) loadBook();
+    });
+</script>
+</body>
+</html>

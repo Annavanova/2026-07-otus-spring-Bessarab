@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: nav}"></nav>
+
+    <h1 th:text="${book.title}"></h1>
+    <p>Author: <span th:text="${book.author.fullName}"></span></p>
+    <p>Genres:  <span th:each="g : ${book.genres}" th:text="${g.name} + ' '"></span>
+    </p>
+        <a th:href="@{/books/{id}/comments(id=${book.id})}">Comments</a> |
+        <a th:href="@{/books}">Back to books</a>
+</body>
+</html>
