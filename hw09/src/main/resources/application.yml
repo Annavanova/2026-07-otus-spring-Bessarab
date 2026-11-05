@@ -1,14 +1,7 @@
 spring:
   data:
-  mongodb:
-    database: testdb
-    auto-index-creation: true
-  sql:
-    init:
-      mode: always
-      data-locations: data.sql
-      schema-locations: schema.sql
-  shell:
-    interactive:
-      enabled: true
-
+    mongodb:
+      uri: mongodb://localhost:27017/maindb
+      auto-index-creation: true
+  thymeleaf:
+    cache: false
