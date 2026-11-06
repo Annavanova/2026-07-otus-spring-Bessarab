@@ -1,5 +1,6 @@
 package ru.otus.hw.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +23,13 @@ public class CommentResrController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Comment create(@PathVariable String bookId, @RequestBody CommentFormDto dto) {
+    public Comment create(@PathVariable String bookId, @Valid @RequestBody CommentFormDto dto) {
         return commentService.insert(dto.getText(), bookId);
     }
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String bookId, @PathVariable String commentId) {
-        commentService.deleteById(commentId);
+        commentService.deleteByIdAndBookId(commentId, bookId);   // ← проверка принадлежности
     }
 }

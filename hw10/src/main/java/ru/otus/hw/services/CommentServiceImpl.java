@@ -53,4 +53,17 @@ public class CommentServiceImpl implements CommentService{
     public void deleteById(String id) {
         commentRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public void deleteByIdAndBookId(String id, String bookId) {
+        var comment = commentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Comment with id %s not found".formatted(id)));
+        if (comment.getBook() == null || !comment.getBook().getId().equals(bookId)) {
+            throw new EntityNotFoundException(
+                    "Comment %s does not belong to book %s".formatted(id, bookId));
+        }
+        commentRepository.deleteById(id);
+    }
 }
