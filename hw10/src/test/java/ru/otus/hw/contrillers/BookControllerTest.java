@@ -102,4 +102,41 @@ public class BookControllerTest {
 
         verify(bookService).deleteById("b1");
     }
+
+    @Test
+    @DisplayName("POST /api/books с пустым title — 400")
+    void create_withEmptyTitle_shouldReturn400() throws Exception {
+        mockMvc.perform(post("/api/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"title":"","authorId":"a1","genreIds":["g1"]}
+                            """))
+                .andExpect(status().isBadRequest());
+
+        verify(bookService, never()).insert(anyString(), anyString(), anySet());
+    }
+
+    @Test
+    @DisplayName("POST /api/books с пустыми жанрами — 400")
+    void create_withEmptyGenres_shouldReturn400() throws Exception {
+        mockMvc.perform(post("/api/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"title":"Book","authorId":"a1","genreIds":[]}
+                            """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PUT /api/books/{id} с пустым title — 400")
+    void update_withEmptyTitle_shouldReturn400() throws Exception {
+        mockMvc.perform(put("/api/books/b1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {"title":"","authorId":"a1","genreIds":["g1"]}
+                            """))
+                .andExpect(status().isBadRequest());
+
+        verify(bookService, never()).update(anyString(), anyString(), anyString(), anySet());
+    }
 }

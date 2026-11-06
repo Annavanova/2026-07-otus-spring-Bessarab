@@ -1,11 +1,14 @@
 package ru.otus.hw.contrillers;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.controllers.CommentResrController;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Comment;
 import ru.otus.hw.services.CommentService;
 
@@ -18,39 +21,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CommentResrController.class)
 public class CommentControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @MockitoBean
-    private CommentService commentService;
+    @Autowired private MockMvc mockMvc;
+    @MockitoBean private CommentService commentService;
 
     @Test
-    void listComments() throws Exception {
-        when(commentService.findAllByBookId("b1")).thenReturn(List.of());
+    @DisplayName("DELETE /api/books/{bookId}/comments/{id} — 204")
+    void delete_ok() throws Exception {
+        mockMvc.perform(delete("/api/books/b1/comments/c1"))
+                .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/books/b1/comments"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("comments/list"))
-                .andExpect(model().attributeExists("comments", "bookId"));
+        verify(commentService).deleteByIdAndBookId("c1", "b1");
     }
 
     @Test
-    void createComment() throws Exception {
-        when(commentService.insert(anyString(), anyString()))
-                .thenReturn(new Comment("c1", "Text", null));
+    @DisplayName("DELETE /api/books/{bookId}/comments/{id} — 404, если чужой комментарий")
+    void delete_wrongBook_shouldReturn404() throws Exception {
+        doThrow(new EntityNotFoundException("Comment c1 does not belong to book b2"))
+                .when(commentService).deleteByIdAndBookId("c1", "b2");
 
-        mockMvc.perform(post("/books/b1/comments").param("text", "Nice"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/books/b1/comments"));
-
-        verify(commentService).insert("Nice", "b1");
+        mockMvc.perform(delete("/api/books/b2/comments/c1"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void deleteComment() throws Exception {
-        mockMvc.perform(post("/comments/c1/delete").param("bookId", "b1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/books/b1/comments"));
+    @DisplayName("POST с пустым text — 400")
+    void create_withEmptyText_shouldReturn400() throws Exception {
+        mockMvc.perform(post("/api/books/b1/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"text":""}
+                                """))
+                .andExpect(status().isBadRequest());
 
-        verify(commentService).deleteById("c1");
+        verify(commentService, never()).insert(anyString(), anyString());
     }
 }
