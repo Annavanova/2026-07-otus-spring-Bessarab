@@ -6,6 +6,9 @@
 
 <h1 th:text="${book.id} == null ? 'New book' : 'Edit book'"></h1>
 
+<!-- Блок ошибки -->
+<div th:if="${error}" style="color: red; margin-bottom: 10px;" th:text="${error}"></div>
+
 <form th:action="${book.id} == null ? @{/books} : @{/books/{id}(id=${book.id})}"
       th:object="${book}" method="post">
 

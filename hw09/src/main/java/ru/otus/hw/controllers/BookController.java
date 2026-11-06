@@ -45,9 +45,7 @@ public class BookController {
 
     @PostMapping("/books")
     public String create(@ModelAttribute("book") BookFormDto dto, Model model) {
-        if (dto.getGenreIds() == null || dto.getGenreIds().isEmpty()) {
-            model.addAttribute("error", "Please select at least one genre");
-            addFormLists(model);
+        if (!validate(dto, model)) {
             return "books/form";
         }
         bookService.insert(dto.getTitle(), dto.getAuthorId(), dto.getGenreIds());
@@ -69,7 +67,10 @@ public class BookController {
     }
 
     @PostMapping("/books/{id}")
-    public String update(@PathVariable String id, @ModelAttribute("book") BookFormDto dto) {
+    public String update(@PathVariable String id, @ModelAttribute("book") BookFormDto dto, Model model) {
+        if (!validate(dto, model)) {
+            return "books/form";   // остаёмся на форме с ошибкой
+        }
         bookService.update(id, dto.getTitle(), dto.getAuthorId(), dto.getGenreIds());
         return "redirect:/books";
     }
@@ -82,11 +83,33 @@ public class BookController {
         return "books/delete";
     }
 
-    // Удаление — только POST, не GET (требование задания)
     @PostMapping("/books/{id}/delete")
     public String delete(@PathVariable String id) {
         bookService.deleteById(id);
         return "redirect:/books";
+    }
+
+    /**
+     * Единая валидация формы книги.
+     * Возвращает true, если форма валидна; иначе кладёт ошибку в модель и возвращает false.
+     */
+    private boolean validate(BookFormDto dto, Model model) {
+        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
+            model.addAttribute("error", "Title must not be empty");
+            addFormLists(model);
+            return false;
+        }
+        if (dto.getAuthorId() == null || dto.getAuthorId().isBlank()) {
+            model.addAttribute("error", "Please select an author");
+            addFormLists(model);
+            return false;
+        }
+        if (dto.getGenreIds() == null || dto.getGenreIds().isEmpty()) {
+            model.addAttribute("error", "Please select at least one genre");
+            addFormLists(model);
+            return false;
+        }
+        return true;
     }
 
     private void addFormLists(Model model) {
