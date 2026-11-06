@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<h1 th:text="${book.id} == null ? 'New book' : 'Edit book'"></h1>
+
+<!-- Блок ошибки -->
+<div th:if="${error}" style="color: red; margin-bottom: 10px;" th:text="${error}"></div>
+
+<form th:action="${book.id} == null ? @{/books} : @{/books/{id}(id=${book.id})}"
+      th:object="${book}" method="post">
+
+    <label>Title:
+        <input type="text" th:field="*{title}" required/>
+    </label>
+    <br/>
+
+    <label>Author:
+        <select th:field="*{authorId}">
+            <option value="">-- choose --</option>
+            <option th:each="a : ${authors}"
+                    th:value="${a.id}"
+                    th:text="${a.fullName}"></option>
+        </select>
+    </label>
+    <br/>
+
+    <label>Genres:
+        <select th:field="*{genreIds}" multiple>
+            <option th:each="g : ${genres}"
+                    th:value="${g.id}"
+                    th:text="${g.name}"></option>
+        </select>
+    </label>
+    <br/>
+
+    <button type="submit">Save</button>
+    <a th:href="@{/books}">Cancel</a>
+
+    <p th:if="${error}" th:text="${error}" style="color: red;"></p>
+</form>
+</body>
+</html>

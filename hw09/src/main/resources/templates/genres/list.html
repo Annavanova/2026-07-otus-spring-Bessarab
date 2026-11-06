@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+
+<h1>Genres</h1>
+<ul>
+    <li th:each="g : ${genres}" th:text="${g.name}"></li>
+</ul>
+<a th:href="@{/books}">Back to books</a>
+</body>
+</html>
