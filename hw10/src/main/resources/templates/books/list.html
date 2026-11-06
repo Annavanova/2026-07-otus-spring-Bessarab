@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+</head>
+<body>
+
+<h1>Books</h1>
+<a href="/books/new">+ Add book</a>
+<nav>
+    <a href="/authors">Authors</a> |
+    <a href="/genres">Genres</a>
+</nav>
+
+<table border="1" id="booksTable">
+    <thead>
+    <tr><th>#</th><th>Title</th><th>Author</th><th>Genres</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    async function loadBooks() {
+        const response = await fetch('/api/books');
+        const books = await response.json();
+        const tbody = document.querySelector('#booksTable tbody');
+        tbody.innerHTML = '';
+        books.forEach((book, index) => {
+            const genres = book.genres.map(g => g.name).join(', ');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${book.title}</td>
+                <td>${book.author ? book.author.fullName : '—'}</td>
+                <td>${genres}</td>
+                <td>
+                    <a href="/books/${book.id}">View</a>
+                    <a href="/books/${book.id}/edit">Edit</a>
+                    <button onclick="deleteBook('${book.id}')">Delete</button>
+                    <a href="/books/${book.id}/comments">Comments</a>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    async function deleteBook(id) {
+        if (!confirm('Delete this book?')) return;
+        await fetch(`/api/books/${id}`, { method: 'DELETE' });
+        loadBooks();
+    }
+
+    loadBooks();
+</script>
+</body>
+</html>

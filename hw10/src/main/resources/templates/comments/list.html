@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comments</title>
+</head>
+<body>
+
+<nav>
+    <a href="/books">Books</a> |
+    <a href="/authors">Authors</a> |
+    <a href="/genres">Genres</a>
+</nav>
+
+<h1>Comments for book</h1>
+<p><a id="backToBook" href="#">← Back to book</a></p>
+
+<!-- Форма добавления комментария -->
+<form id="commentForm">
+    <input type="text" id="commentText" placeholder="New comment" required/>
+    <button type="submit">Add</button>
+</form>
+
+<!-- Список комментариев -->
+<ul id="commentsList"></ul>
+
+<script>
+    const pathParts = window.location.pathname.split('/');
+    const bookId = pathParts[2];
+
+    document.getElementById('backToBook').href = `/books/${bookId}`;
+
+    async function loadBook() {
+        const res = await fetch(`/api/books/${bookId}`);
+        if (!res.ok) {
+            document.querySelector('h1').textContent = 'Book not found';
+            return;
+        }
+        const book = await res.json();
+        document.querySelector('h1').textContent = `Comments for "${book.title}"`;
+    }
+
+    async function loadComments() {
+        const res = await fetch(`/api/books/${bookId}/comments`);
+        const comments = await res.json();
+        const list = document.getElementById('commentsList');
+        list.innerHTML = '';
+        if (comments.length === 0) {
+            list.innerHTML = '<li><em>No comments yet</em></li>';
+            return;
+        }
+        comments.forEach(c => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${c.text}</span>
+                <button onclick="deleteComment('${c.id}')">Delete</button>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    async function deleteComment(commentId) {
+        if (!confirm('Delete this comment?')) return;
+        await fetch(`/api/books/${bookId}/comments/${commentId}`, { method: 'DELETE' });
+        loadComments();
+    }
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = document.getElementById('commentText').value.trim();
+        if (!text) return;
+        await fetch(`/api/books/${bookId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+        document.getElementById('commentText').value = '';
+        loadComments();
+    });
+
+    loadBook();
+    loadComments();
+</script>
+</body>
+</html>
