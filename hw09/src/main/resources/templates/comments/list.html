@@ -6,6 +6,8 @@
 
 <h1>Comments</h1>
 
+<div th:if="${error}" style="color: red;" th:text="${error}"></div>
+
 <form th:action="@{/books/{id}/comments(id=${bookId})}" th:object="${comment}" method="post">
     <input type="text" th:field="*{text}" placeholder="New comment" required/>
     <button type="submit">Add</button>

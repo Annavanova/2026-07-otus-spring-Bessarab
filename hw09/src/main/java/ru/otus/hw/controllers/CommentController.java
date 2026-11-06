@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.otus.hw.dto.CommentFormDto;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.CommentService;
 
 @Controller
@@ -27,8 +28,16 @@ public class CommentController {
     }
 
     @PostMapping("/comments/{id}/delete")
-    public String delete(@PathVariable String id, @RequestParam String bookId) {
-        commentService.deleteById(id);   
+    public String delete(@PathVariable String id, @RequestParam String bookId, Model model) {
+        try {
+            commentService.deleteByIdAndBookId(id, bookId);
+        } catch (EntityNotFoundException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("bookId", bookId);
+            model.addAttribute("comments", commentService.findAllByBookId(bookId));
+            model.addAttribute("comment", new CommentFormDto());
+            return "comments/list";
+        }
         return "redirect:/books/" + bookId + "/comments";
     }
 }

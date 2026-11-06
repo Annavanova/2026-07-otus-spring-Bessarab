@@ -150,4 +150,19 @@ public class BookControllerTest {
 
         verify(bookService, never()).deleteById(anyString());
     }
+
+
+    @Test
+    @DisplayName("POST /books/{id} с пустыми жанрами — остаёмся на форме с ошибкой")
+    void update_withEmptyGenres_shouldStayOnForm() throws Exception {
+        mockMvc.perform(post("/books/b1")
+                                .param("title", "Updated")
+                                .param("authorId", "a1")
+                       )
+                .andExpect(status().isOk())
+                .andExpect(view().name("books/form"))
+                .andExpect(model().attributeExists("error"));
+
+        verify(bookService, never()).update(anyString(), anyString(), anyString(), anySet());
+    }
 }
