@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Authors</title>
+</head>
+<body>
+
+<nav>
+    <a href="/books">Books</a> |
+    <a href="/authors">Authors</a> |
+    <a href="/genres">Genres</a>
+</nav>
+
+<h1>Authors</h1>
+
+<ul id="authorsList"></ul>
+
+<script>
+    async function loadAuthors() {
+        const response = await fetch('/api/authors');
+        const authors = await response.json();
+        const list = document.getElementById('authorsList');
+        list.innerHTML = '';
+        authors.forEach(a => {
+            const li = document.createElement('li');
+            li.textContent = a.fullName;
+            list.appendChild(li);
+        });
+    }
+
+    loadAuthors();
+</script>
+</body>
+</html>
