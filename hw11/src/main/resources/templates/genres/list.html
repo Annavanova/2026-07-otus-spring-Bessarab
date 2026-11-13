@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Genres</title>
+</head>
+<body>
+
+<nav>
+    <a href="/books">Books</a> |
+    <a href="/authors">Authors</a> |
+    <a href="/genres">Genres</a>
+</nav>
+
+<h1>Genres</h1>
+
+<ul id="genresList"></ul>
+
+<script>
+    async function loadGenres() {
+        const response = await fetch('/api/genres');
+        const genres = await response.json();
+        const list = document.getElementById('genresList');
+        list.innerHTML = '';
+        genres.forEach(g => {
+            const li = document.createElement('li');
+            li.textContent = g.name;
+            list.appendChild(li);
+        });
+    }
+
+    loadGenres();
+</script>
+</body>
+</html>
